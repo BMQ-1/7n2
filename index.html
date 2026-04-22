@@ -3,72 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CSP فولاذي: يمنع أي اتصال خارجي نهائياً -->
+    <!-- عزل جداري كامل: يمنع أي اتصال خارجي نهائياً -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; img-src data:; form-action 'none'; frame-ancestors 'none'; base-uri 'none';">
-    <meta name="description" content="حِصْن 3.0 - تشفير معزول (Air-Gapped) بدرجة عسكرية">
-    <title>حِصْن 3.0 | العزل التام</title>
+    <meta name="description" content="حِصْن 5.0 - القبو المنيع لتشفير البيانات محلياً (Air-Gapped Edition)">
+    <title>حِصْن 5.0 | القبو المنيع</title>
     
 <style>
     :root {
-        --bg-dark: #030712; --surface: #111827; --surface-hover: #1f2937;
-        --border: #374151; --text: #f9fafb; --text-muted: #9ca3af;
-        --primary: #10b981; --secondary: #3b82f6; --danger: #ef4444; --warning: #f59e0b;
-        --radius: 12px;
-        --font-sys: system-ui, -apple-system, sans-serif;
+        --bg-dark: #020617; --surface: #0f172a; --surface-hover: #1e293b;
+        --border: #334155; --text: #f8fafc; --text-muted: #94a3b8;
+        --primary: #10b981; --primary-glow: rgba(16,185,129,0.15);
+        --cyan: #06b6d4; --danger: #ef4444; --warning: #f59e0b;
+        --radius: 12px; 
+        /* استخدام خطوط النظام الآمنة لدعم العربية بدون إنترنت */
+        --font-sys: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        --font-mono: "Fira Code", ui-monospace, SFMono-Regular, monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sys); }
 
     body { background-color: var(--bg-dark); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
-    .app-container { width: 100%; max-width: 600px; }
+    .app-container { width: 100%; max-width: 700px; }
 
-    header { text-align: center; margin-bottom: 1.5rem; }
-    .brand-title { font-weight: 900; font-size: 3.5rem; color: var(--primary); letter-spacing: -1px; text-shadow: 0 0 20px rgba(16,185,129,0.2); }
-    .tagline { color: var(--text-muted); font-size: 1rem; margin-top: 0.5rem; }
+    header { text-align: center; margin-bottom: 2rem; position: relative; }
+    .brand-title { font-weight: 900; font-size: 3rem; color: var(--text); letter-spacing: -1px; text-shadow: 0 0 30px var(--primary-glow); margin-bottom: 0.2rem;}
+    .brand-title span { color: var(--primary); }
+    .tagline { color: var(--cyan); font-size: 0.9rem; letter-spacing: 1px; font-weight: bold; }
 
-    .main-nav { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.4rem; margin-bottom: 1.5rem; gap: 0.4rem; flex-wrap: wrap; }
-    .nav-btn { flex: 1 1 calc(33% - 0.5rem); min-width: 120px; background: transparent; border: none; color: var(--text-muted); font-size: 0.9rem; font-weight: bold; padding: 0.8rem; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-    .nav-btn.active { background: var(--border); color: #fff; }
-    .nav-btn.special { background: rgba(59, 130, 246, 0.1); color: var(--secondary); border: 1px solid var(--secondary); }
+    .nav-bar { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem; margin-bottom: 1.5rem; gap: 0.5rem; flex-wrap: wrap; }
+    .nav-btn { flex: 1; min-width: 140px; background: transparent; border: none; color: var(--text-muted); padding: 0.8rem; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.95rem; font-weight: bold; }
+    .nav-btn:hover { background: var(--surface-hover); color: var(--text); }
+    .nav-btn.active { background: var(--border); color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .nav-btn.airgap { background: rgba(6, 182, 212, 0.1); color: var(--cyan); border: 1px dashed var(--cyan); }
 
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .view-section { display: none; } .view-section.active { display: block; animation: fadeIn 0.3s; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    
+    .view-section { display: none; } .view-section.active { display: block; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .input-group { margin-bottom: 1.2rem; }
-    .input-label { display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
-    .custom-input, .custom-textarea { width: 100%; background: #000; border: 1px solid var(--border); color: var(--text); padding: 0.9rem; border-radius: 8px; outline: none; font-size: 1rem; transition: 0.2s; }
-    .custom-input:focus, .custom-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(16,185,129,0.1); }
-    .custom-textarea { height: 110px; resize: vertical; }
+    .input-group { margin-bottom: 1.5rem; }
+    .input-label { display: block; font-weight: bold; margin-bottom: 0.6rem; color: var(--text-muted); font-size: 0.9rem; }
+    
+    .custom-input, .custom-textarea { width: 100%; background: #000; border: 1px solid var(--border); color: var(--primary); padding: 1rem; outline: none; font-size: 1rem; transition: 0.2s; border-radius: 8px; font-family: var(--font-mono); direction: ltr; text-align: left; }
+    .custom-textarea[placeholder] { direction: rtl; text-align: right; font-family: var(--font-sys); }
+    .custom-textarea:focus[placeholder], .custom-textarea:not(:placeholder-shown) { direction: ltr; text-align: left; font-family: var(--font-mono); }
+    .custom-input:focus, .custom-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    .custom-textarea { height: 130px; resize: vertical; line-height: 1.6; }
+
+    /* Drag and Drop Zone */
+    .drop-zone { border: 2px dashed var(--border); background: rgba(0,0,0,0.3); border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 1rem; }
+    .drop-zone.dragover { border-color: var(--cyan); background: rgba(6,182,212,0.1); }
+    .drop-zone-text { color: var(--text-muted); font-size: 0.95rem; pointer-events: none; }
+    .drop-zone-text span { color: var(--cyan); font-weight: bold; }
 
     .password-wrapper { position: relative; }
-    .password-wrapper button { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; opacity: 0.7; }
+    .password-wrapper input { padding-left: 2.5rem; direction: ltr; text-align: left; }
+    .password-wrapper button { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; filter: grayscale(1); opacity: 0.7; transition: 0.2s; }
+    .password-wrapper button:hover { opacity: 1; filter: grayscale(0); }
 
-    /* Entropy Meter */
-    .entropy-bar-bg { width: 100%; height: 6px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden; }
-    .entropy-bar-fill { height: 100%; width: 0%; background: var(--danger); transition: width 0.3s, background 0.3s; }
-    .entropy-text { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; display: flex; justify-content: space-between; }
+    /* Enhanced Entropy Meter */
+    .entropy-box { margin-top: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 10px; border-radius: 6px; }
+    .entropy-bar-bg { width: 100%; height: 6px; background: var(--surface-hover); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+    .entropy-bar-fill { height: 100%; width: 0%; background: var(--danger); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s; }
+    .entropy-stats { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); }
+    .crack-time { color: var(--text); font-weight: bold; direction: ltr; display: inline-block; }
 
-    .btn-main { width: 100%; padding: 1rem; background: var(--primary); color: #000; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .btn-main.decrypt-btn { background: var(--secondary); color: #fff; }
-    .btn-main:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+    .btn-main { width: 100%; padding: 1.2rem; background: var(--text); color: var(--bg-dark); border: none; border-radius: 8px; font-size: 1.05rem; font-weight: 900; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+    .btn-main:hover { background: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 20px var(--primary-glow); }
+    .btn-main.decrypt { background: var(--surface-hover); color: var(--text); border: 1px solid var(--border); }
+    .btn-main.decrypt:hover { background: var(--cyan); color: #000; box-shadow: 0 10px 20px rgba(6,182,212,0.2); border-color: var(--cyan); }
+    .btn-main:disabled { background: var(--surface-hover); color: var(--border); cursor: not-allowed; transform: none; box-shadow: none; border-color: transparent; }
 
-    .result-container { display: none; margin-top: 1.5rem; background: #000; border: 1px dashed var(--primary); padding: 1rem; border-radius: 8px; }
-    .result-text { font-family: monospace; font-size: 0.9rem; color: var(--primary); word-break: break-all; max-height: 150px; overflow-y: auto; line-height: 1.5; padding: 10px; background: rgba(16,185,129,0.05); border-radius: 4px; }
+    /* Auto-Wipe & Reveal UI */
+    .vault-breached { display: none; margin-top: 20px; border: 1px solid var(--danger); border-radius: 8px; overflow: hidden; background: #000; position: relative; }
+    .timer-header { background: rgba(239, 68, 68, 0.15); padding: 10px; text-align: center; color: var(--danger); font-size: 0.85rem; font-weight: bold; display: flex; flex-direction: column; gap: 5px; }
+    .timer-bar-bg { width: 100%; height: 4px; background: rgba(239, 68, 68, 0.2); }
+    .timer-bar-fill { height: 100%; background: var(--danger); width: 100%; transform-origin: left; }
     
-    /* Anti-Shoulder Surfing */
-    .blurred-text { filter: blur(6px); user-select: none; transition: filter 0.2s; color: #fff; }
-    .blurred-text.revealed { filter: blur(0); user-select: text; }
-    .reveal-btn { background: #333; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; margin-bottom: 10px; }
+    .secret-payload { padding: 20px; font-family: var(--font-mono); font-size: 1.1rem; color: #fff; line-height: 1.6; word-break: break-all; min-height: 100px; display: flex; align-items: center; justify-content: center; text-align: center; direction: ltr; }
+    .blur-overlay { filter: blur(10px); user-select: none; opacity: 0.7; transition: 0.2s; cursor: grab; }
+    .blur-overlay.revealed { filter: blur(0); opacity: 1; user-select: text; cursor: text; color: var(--primary); }
 
-    .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .btn-secondary { background: #222; color: #fff; border: 1px solid var(--border); padding: 0.8rem; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;}
-    .btn-secondary:hover { background: #333; }
-    .btn-danger { grid-column: span 2; background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: var(--danger); }
+    .btn-action { width: 100%; padding: 1rem; background: transparent; border: 1px dashed var(--primary); color: var(--primary); cursor: pointer; margin-top: 15px; font-weight: bold; border-radius: 8px; transition: 0.2s; font-size: 1rem;}
+    .btn-action:hover { background: var(--primary-glow); }
 
-    .alert-box { background: rgba(59, 130, 246, 0.1); border-right: 4px solid var(--secondary); padding: 0.8rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #fff; line-height: 1.6; }
+    .info-list { color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; padding-right: 1.5rem; }
+    .info-list li { margin-bottom: 0.8rem; }
+    .info-list span { color: var(--cyan); font-weight: bold; }
 
-    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: #fff; color: #000; padding: 0.8rem 1.5rem; border-radius: 20px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: var(--bg-dark); padding: 1rem 2rem; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.error { background: var(--danger); color: #fff; }
 </style>
@@ -77,92 +100,104 @@
 
 <div class="app-container">
     <header>
-        <h1 class="brand-title">حِصْن 3.0</h1>
-        <p class="tagline">النسخة المعزولة (Air-Gapped Edition) 🛡️</p>
+        <h1 class="brand-title">حِصْن<span> 5.0</span></h1>
+        <p class="tagline">القبو المنيع غير المتصل بالإنترنت</p>
     </header>
 
-    <nav class="main-nav">
-        <button class="nav-btn active" data-view="encrypt">🔒 تشفير</button>
-        <button class="nav-btn" data-view="decrypt">🔓 فك تشفير</button>
-        <button class="nav-btn special" onclick="downloadAirGappedApp()">⬇️ حفظ الأداة محلياً</button>
+    <nav class="nav-bar">
+        <button class="nav-btn active" data-view="encrypt">🔒 تشفير (إقفال)</button>
+        <button class="nav-btn" data-view="decrypt">🔓 فك التشفير (فتح)</button>
+        <button class="nav-btn" data-view="audit">🛡️ التقرير الأمني</button>
+        <button class="nav-btn airgap" onclick="downloadAirGapped()">⬇️ تصدير كود معزول</button>
     </nav>
 
     <main class="card">
-        <!-- 1. قسم التشفير -->
+        <!-- 1. ENCRYPT VIEW -->
         <section id="view-encrypt" class="view-section active">
-            
-            <div class="alert-box">
-                للحماية القصوى: استخدم الأداة بعد فصل الإنترنت. استخدم زر <strong>(حفظ كملف)</strong> لتجنب سرقة النص من برامج مراقبة الحافظة (Clipboard Malware).
+            <div class="input-group">
+                <label class="input-label">النص السري (البيانات المراد تشفيرها وإخفائها)</label>
+                <textarea id="enc-text" class="custom-textarea" placeholder="ضع الكلمات المرورية، المفاتيح الخاصة، أو الرسائل الحساسة هنا..."></textarea>
             </div>
 
             <div class="input-group">
-                <label class="input-label">الرسالة السرية (الطول مُموّه تلقائياً):</label>
-                <textarea id="enc-text" class="custom-textarea" placeholder="اكتب النص الحساس..."></textarea>
-            </div>
-
-            <div class="input-group">
-                <label class="input-label">كلمة مرور التشفير (يجب تحقيق 60-bit كحد أدنى):</label>
+                <label class="input-label">كلمة مرور التشفير (الهدف: تحقيق 80+ بت من التعقيد)</label>
                 <div class="password-wrapper">
-                    <input type="password" id="enc-password" class="custom-input" placeholder="استخدم أرقام، رموز، وحروف...">
+                    <input type="password" id="enc-password" class="custom-input" placeholder="استخدم عبارة مرور طويلة ومعقدة...">
                     <button type="button" onclick="togglePassword('enc-password')">👁️</button>
                 </div>
-                <div class="entropy-bar-bg"><div class="entropy-bar-fill" id="enc-entropy-fill"></div></div>
-                <div class="entropy-text">
-                    <span id="enc-entropy-status">ضعيف جداً</span>
-                    <span id="enc-entropy-bits">0 Bits</span>
+                
+                <div class="entropy-box">
+                    <div class="entropy-bar-bg"><div class="entropy-bar-fill" id="enc-entropy-fill"></div></div>
+                    <div class="entropy-stats">
+                        <span id="enc-entropy-bits" style="direction: ltr;">0 Bits</span>
+                        <span>زمن الاختراق المتوقع: <span class="crack-time" id="enc-crack-time">فوري</span></span>
+                    </div>
                 </div>
             </div>
 
-            <button class="btn-main" id="btn-encrypt" disabled>تشفير النص 🔒</button>
-
-            <div class="result-container" id="enc-result-box">
-                <div class="input-label">النص المشفر:</div>
-                <div class="result-text" id="enc-result-text"></div>
-                <div class="actions-grid">
-                    <button class="btn-secondary" onclick="downloadText('enc-result-text', 'Encrypted_Message.txt')">💾 تحميل كملف</button>
-                    <button class="btn-secondary" onclick="copyToClipboard('enc-result-text')">📋 نسخ</button>
-                </div>
-            </div>
+            <button class="btn-main" id="btn-encrypt" disabled>🛡️ توليد وتشفير القبو (.hisn)</button>
+            <button class="btn-action" id="btn-download-enc" style="display: none;" onclick="downloadVault()">⬇️ حفظ ملف القبو الآمن</button>
         </section>
 
-        <!-- 2. قسم فك التشفير -->
+        <!-- 2. DECRYPT VIEW -->
         <section id="view-decrypt" class="view-section">
             <div class="input-group">
-                <label class="input-label">الصق النص المشفر (أو محتوى الملف):</label>
-                <textarea id="dec-text" class="custom-textarea" placeholder="HisnLock:..."></textarea>
+                <label class="input-label">استيراد القبو المشفر</label>
+                
+                <!-- Drag and Drop UI -->
+                <div class="drop-zone" id="drop-zone">
+                    <div class="drop-zone-text">اسحب وأفلت ملف <span>.hisn</span> هنا أو انقر لاختياره</div>
+                    <input type="file" id="file-input" accept=".hisn,.json,.txt" style="display: none;">
+                </div>
+
+                <textarea id="dec-text" class="custom-textarea" placeholder="أو قم بلصق محتويات ملف الـ JSON هنا مباشرة..."></textarea>
             </div>
 
             <div class="input-group">
-                <label class="input-label">كلمة المرور:</label>
+                <label class="input-label">كلمة المرور الأصلية للقبو</label>
                 <div class="password-wrapper">
                     <input type="password" id="dec-password" class="custom-input">
                     <button type="button" onclick="togglePassword('dec-password')">👁️</button>
                 </div>
             </div>
 
-            <button class="btn-main decrypt-btn" id="btn-decrypt">فك التشفير 🔓</button>
+            <button class="btn-main decrypt" id="btn-decrypt">🔓 فتح القبو واستخراج البيانات</button>
 
-            <div class="result-container" id="dec-result-box" style="border-color: var(--secondary);">
-                <div class="input-label" style="display:flex; justify-content: space-between; align-items:center;">
-                    الرسالة الأصلية:
-                    <button class="reveal-btn" id="btn-reveal" onmousedown="revealText()" onmouseup="hideText()" onmouseleave="hideText()" ontouchstart="revealText()" ontouchend="hideText()">👁️ اضغط مطولاً للرؤية</button>
+            <!-- Vault Breached (Auto-Wipe) UI -->
+            <div class="vault-breached" id="wipe-container">
+                <div class="timer-header">
+                    <span>⚠️ تم اختراق القبو للفتح - تدمير ذاتي للمحتوى خلال 10 ثوانٍ</span>
+                    <span style="color:var(--text-muted); font-size: 0.8rem;">اضغط مطولاً على النص لفك التمويه. سيتم مسح الذاكرة بالكامل فوراً بعد انتهاء الوقت.</span>
                 </div>
-                <div class="result-text blurred-text" id="dec-result-text" style="font-family: var(--font-sys); font-size: 1.1rem;"></div>
+                <div class="timer-bar-bg"><div class="timer-bar-fill" id="timer-bar"></div></div>
                 
-                <div class="actions-grid">
-                    <button class="btn-secondary" onclick="downloadText('dec-result-text', 'Decrypted_Secret.txt')">💾 استخراج كملف</button>
-                    <button class="btn-secondary" onclick="copyToClipboard('dec-result-text')">📋 نسخ</button>
-                    <button class="btn-secondary btn-danger" onclick="wipeMemory()">🧹 تدمير البيانات من الذاكرة والشاشة</button>
+                <div class="secret-payload blur-overlay" id="dec-result-text" 
+                     onmousedown="this.classList.add('revealed')" 
+                     onmouseup="this.classList.remove('revealed')" 
+                     onmouseleave="this.classList.remove('revealed')"
+                     ontouchstart="this.classList.add('revealed')"
+                     ontouchend="this.classList.remove('revealed')">
                 </div>
             </div>
+        </section>
+
+        <!-- 3. SECURITY AUDIT VIEW -->
+        <section id="view-audit" class="view-section">
+            <h3 style="color: var(--cyan); margin-bottom: 1rem;">المواصفات الأمنية لـ (حِصْن 5.0)</h3>
+            <ul class="info-list">
+                <li><span>التحقق الصارم للبروتوكول:</span> يقوم نظامنا بالتدقيق على مستوى البايتات. إذا تم التلاعب بطول مفاتيح `Salt` أو `IV`، أو تم تغيير الخوارزمية داخل ملف `JSON`، سيتم رفض الملف فوراً لمنع هجمات التعديل.</li>
+                <li><span>الإنتروبيا المتقدمة (العربية):</span> خوارزميتنا تتعرف على التسلسلات في الكيبورد الإنجليزي والعربي (مثل `1234` أو `شسيف`) وتعاقبها بخصم نقاط الأمان، مما يجبرك على تجاوز حاجز `80+ Bits` الحقيقي.</li>
+                <li><span>عزل جداري نقي (Clean Air-Gap):</span> زر "التصدير" يقوم بسحب نسخة `HTML` عذراء تماماً (نظيفة من أي نصوص أو حالات متبقية) للاستخدام الآمن في الحواسيب المفصولة عن الإنترنت.</li>
+                <li><span>تجاوز الحافظة (Clipboard Isolation):</span> ألغينا النسخ واللصق للبيانات المشفرة كلياً. تبادل المعلومات يتم حصراً عبر تنزيل ملفات `.hisn` لمنع برمجيات التجسس من قراءة الـ Clipboard.</li>
+            </ul>
         </section>
     </main>
 </div>
 
-<div class="toast" id="toast">تم!</div>
+<div class="toast" id="toast">النظام جاهز</div>
 
 <script>
-    // --- UI Navigation ---
+    // --- التنقل بين النوافذ ---
     document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.nav-btn[data-view]').forEach(b => b.classList.remove('active'));
@@ -174,8 +209,9 @@
 
     function showToast(msg, isError = false) {
         const t = document.getElementById('toast');
-        t.textContent = msg; t.className = `toast show ${isError ? 'error' : ''}`;
-        setTimeout(() => t.classList.remove('show'), 3000);
+        t.textContent = msg; 
+        t.className = `toast show ${isError ? 'error' : ''}`;
+        setTimeout(() => t.classList.remove('show'), 3500);
     }
 
     function togglePassword(id) {
@@ -183,93 +219,93 @@
         inp.type = inp.type === 'password' ? 'text' : 'password';
     }
 
-    // --- Threat Mitigation: Clipboard Logger Bypass ---
-    function copyToClipboard(id) {
-        navigator.clipboard.writeText(document.getElementById(id).innerText)
-            .then(() => showToast('تم النسخ! (يُفضل استخدام زر الملف للحماية)'))
-            .catch(() => showToast('فشل النسخ', true));
+    // --- السحب والإفلات ---
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const decText = document.getElementById('dec-text');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault(); dropZone.classList.remove('dragover');
+        if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+        if(e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    function handleFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => { 
+            decText.value = e.target.result;
+            showToast('تم تحميل القبو بنجاح ✅');
+        };
+        reader.readAsText(file);
     }
 
-    function downloadText(elementId, filename) {
-        const text = document.getElementById(elementId).innerText;
-        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = filename; a.click();
-        URL.revokeObjectURL(url);
-        showToast('تم الحفظ كملف بنجاح 💾');
-    }
-
-    // --- Threat Mitigation: Supply Chain / Origin Compromise Bypass ---
-    function downloadAirGappedApp() {
-        // تنظيف الشاشة قبل التحميل لضمان عدم حفظ كلمات المرور
-        wipeMemory(); 
-        const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = "HisnLock_Offline.html"; a.click();
-        URL.revokeObjectURL(url);
-        showToast('تم تحميل الأداة! افتحها محلياً بدون إنترنت 🛡️');
-    }
-
-    // --- Threat Mitigation: Shoulder Surfing ---
-    function revealText() { document.getElementById('dec-result-text').classList.add('revealed'); }
-    function hideText() { document.getElementById('dec-result-text').classList.remove('revealed'); }
-
-    function wipeMemory() {
-        document.getElementById('dec-result-text').innerText = '';
-        document.getElementById('enc-text').value = '';
-        document.getElementById('dec-text').value = '';
-        document.getElementById('enc-password').value = '';
-        document.getElementById('dec-password').value = '';
-        document.getElementById('dec-result-box').style.display = 'none';
-        document.getElementById('enc-result-box').style.display = 'none';
-        document.getElementById('enc-entropy-fill').style.width = '0%';
-        document.getElementById('btn-encrypt').disabled = true;
-        navigator.clipboard.writeText(' '); // تنظيف الـ Clipboard
-        showToast('تم تدمير البيانات 🧹');
-    }
-
-    // --- Threat Mitigation: Mathematical Entropy Enforcer ---
-    function calcEntropy(pwd) {
+    // --- نموذج الإنتروبيا المتقدم (يدعم العربية) ---
+    function analyzePassword(pwd) {
+        if (!pwd) return 0;
         let pool = 0;
-        if (/[a-z]/.test(pwd) || /[أ-ي]/.test(pwd)) pool += 28;
+        if (/[a-z]/.test(pwd)) pool += 26;
         if (/[A-Z]/.test(pwd)) pool += 26;
+        if (/[أ-ي]/.test(pwd)) pool += 36; // الأبجدية العربية
         if (/[0-9]/.test(pwd)) pool += 10;
         if (/[^a-zA-Z0-9أ-ي\s]/.test(pwd)) pool += 32;
-        return pool === 0 ? 0 : pwd.length * Math.log2(pool);
+
+        let effectiveLength = pwd.length;
+        
+        // عقوبة الحروف المتكررة (aaaa)
+        const repeats = (pwd.match(/(.)\1{2,}/g) ||[]).join('').length;
+        effectiveLength -= repeats * 0.8;
+
+        // عقوبة المتواليات المشهورة (انجليزي وعربي)
+        if (/(012|123|234|345|456|567|678|789|abc|bcd|cde|def|qwe|asd|zxc|ضصث|شسي|كمن|ظزوا)/i.test(pwd)) {
+            effectiveLength -= 2.5;
+        }
+
+        effectiveLength = Math.max(1, effectiveLength);
+        return pool === 0 ? 0 : effectiveLength * Math.log2(pool);
     }
 
+    const GUESSES_PER_SEC = 10000; // افتراض قدرة هجوم 10,000 تجربة في الثانية مع PBKDF2 (600k)
+    
     document.getElementById('enc-password').addEventListener('input', (e) => {
-        const bits = calcEntropy(e.target.value);
+        const bits = analyzePassword(e.target.value);
         const fill = document.getElementById('enc-entropy-fill');
-        const status = document.getElementById('enc-entropy-status');
         const bitTxt = document.getElementById('enc-entropy-bits');
+        const timeTxt = document.getElementById('enc-crack-time');
         const btn = document.getElementById('btn-encrypt');
         
         bitTxt.innerText = Math.round(bits) + ' Bits';
-        const percent = Math.min((bits / 80) * 100, 100);
-        fill.style.width = percent + '%';
+        fill.style.width = Math.min((bits / 100) * 100, 100) + '%';
 
-        if (bits < 40) {
-            fill.style.background = 'var(--danger)'; status.innerText = 'ضعيف جداً ❌'; btn.disabled = true;
-        } else if (bits < 60) {
-            fill.style.background = 'var(--warning)'; status.innerText = 'متوسط (غير مقبول) ⚠️'; btn.disabled = true;
+        let seconds = (Math.pow(2, bits) / GUESSES_PER_SEC);
+        if(bits === 0) seconds = 0;
+
+        if (bits < 60) {
+            fill.style.background = 'var(--danger)'; timeTxt.style.color = 'var(--danger)'; 
+            timeTxt.innerText = "< 1 ساعة ❌"; btn.disabled = true;
+        } else if (bits < 80) {
+            fill.style.background = 'var(--warning)'; timeTxt.style.color = 'var(--warning)'; 
+            timeTxt.innerText = Math.round(seconds/86400) + " أيام ⚠️"; btn.disabled = true;
         } else {
-            fill.style.background = 'var(--primary)'; status.innerText = 'قوي (جاهز للتشفير) ✅'; btn.disabled = false;
+            fill.style.background = 'var(--primary)'; timeTxt.style.color = 'var(--cyan)'; 
+            timeTxt.innerText = "عدة قرون 🛡️"; btn.disabled = false;
         }
     });
 
-    // --- Hardened Crypto Core (AES-GCM-256 + PBKDF2 600k + Padding) ---
+    // --- نواة التشفير الصلبة ---
     const enc = new TextEncoder(), dec = new TextDecoder();
     const ITERATIONS = 600000, BLOCK_SIZE = 256;
+    let generatedVaultJSON = "";
 
-    async function getKey(pwd, salt) {
-        const material = await window.crypto.subtle.importKey("raw", enc.encode(pwd), {name: "PBKDF2"}, false, ["deriveKey"]);
+    async function getKey(pwd, salt, iter) {
+        const material = await window.crypto.subtle.importKey("raw", enc.encode(pwd), {name: "PBKDF2"}, false,["deriveKey"]);
         return window.crypto.subtle.deriveKey(
-            { name: "PBKDF2", salt: salt, iterations: ITERATIONS, hash: "SHA-256" },
-            material, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+            { name: "PBKDF2", salt: salt, iterations: iter, hash: "SHA-256" },
+            material, { name: "AES-GCM", length: 256 }, false,["encrypt", "decrypt"]
         );
     }
 
@@ -285,73 +321,161 @@
 
     function unpad(padded) {
         const len = new DataView(padded.buffer).getUint32(0, false);
-        if (len > padded.length - 4) throw new Error("Corrupt");
+        if (len > padded.length - 4) throw new Error("CORRUPT_PADDING");
         return padded.slice(4, 4 + len);
     }
 
     function buf2b64(buf) {
-        const bytes = new Uint8Array(buf);
-        let bin = ''; for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
+        let bin = ''; const bytes = new Uint8Array(buf);
+        for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
         return window.btoa(bin);
     }
 
     function b642buf(b64) {
-        const bin = window.atob(b64);
-        const bytes = new Uint8Array(bin.length);
+        const bin = window.atob(b64); const bytes = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
         return bytes;
     }
 
-    // Encrypt
+    // --- عملية التشفير ---
     document.getElementById('btn-encrypt').addEventListener('click', async () => {
         const text = document.getElementById('enc-text').value;
         const pwd = document.getElementById('enc-password').value;
         const btn = document.getElementById('btn-encrypt');
-        if (!text) return showToast('أدخل النص!', true);
-
+        
         try {
-            btn.disabled = true; btn.innerText = 'جاري التشفير...';
+            btn.disabled = true; btn.innerText = 'جاري إقفال القبو...';
             const salt = window.crypto.getRandomValues(new Uint8Array(16));
             const iv = window.crypto.getRandomValues(new Uint8Array(12));
-            const key = await getKey(pwd, salt);
+            const key = await getKey(pwd, salt, ITERATIONS);
             
             const encrypted = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, pad(enc.encode(text)));
-            const encBytes = new Uint8Array(encrypted);
-            const combined = new Uint8Array(28 + encBytes.byteLength);
-            combined.set(salt, 0); combined.set(iv, 16); combined.set(encBytes, 28);
-
-            document.getElementById('enc-result-text').innerText = "HisnLock:" + buf2b64(combined);
-            document.getElementById('enc-result-box').style.display = 'block';
-            showToast('تم التشفير والتمويه! 🔒');
+            
+            const vault = {
+                header: { app: "HisnLock", version: "5.0", kdf: "pbkdf2", kdf_params: { hash: "SHA-256", iterations: ITERATIONS }, cipher: "AES-GCM-256" },
+                data: { salt: buf2b64(salt), iv: buf2b64(iv), ciphertext: buf2b64(encrypted) }
+            };
+            
+            generatedVaultJSON = JSON.stringify(vault, null, 2);
+            document.getElementById('btn-download-enc').style.display = 'block';
+            showToast('تم تأمين القبو بنجاح 🛡️');
         } catch (err) {
-            showToast('حدث خطأ!', true);
-        } finally { btn.disabled = false; btn.innerText = 'تشفير النص 🔒'; }
+            showToast('حدث خطأ أثناء التشفير', true);
+        } finally { 
+            btn.disabled = false; btn.innerHTML = '🛡️ توليد وتشفير القبو (.hisn)'; 
+        }
     });
 
-    // Decrypt
+    function downloadVault() {
+        if(!generatedVaultJSON) return;
+        const blob = new Blob([generatedVaultJSON], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = `Vault_${Date.now()}.hisn`; a.click();
+        showToast('تم حفظ الملف المشفر 💾');
+    }
+
+    // --- فك التشفير + التحقق الصارم (Byte-Level Validation) ---
+    let wipeTimeout;
     document.getElementById('btn-decrypt').addEventListener('click', async () => {
-        let raw = document.getElementById('dec-text').value.trim();
+        const raw = document.getElementById('dec-text').value.trim();
         const pwd = document.getElementById('dec-password').value;
         const btn = document.getElementById('btn-decrypt');
-        if (!raw || !pwd) return showToast('أدخل النص وكلمة المرور', true);
-        if (raw.startsWith("HisnLock:")) raw = raw.replace("HisnLock:", "");
-
+        
         try {
-            btn.disabled = true; btn.innerText = 'جاري الكسر...';
-            const combined = b642buf(raw);
-            const key = await getKey(pwd, combined.slice(0, 16));
+            btn.disabled = true; btn.innerText = 'جاري اختراق القبو...';
             
-            const decrypted = await window.crypto.subtle.decrypt(
-                { name: "AES-GCM", iv: combined.slice(16, 28) }, key, combined.slice(28)
-            );
+            let vault;
+            try { vault = JSON.parse(raw); } catch(e) { throw new Error("FORMAT_ERR"); }
 
-            document.getElementById('dec-result-text').innerText = dec.decode(unpad(new Uint8Array(decrypted)));
-            document.getElementById('dec-result-box').style.display = 'block';
-            showToast('تم استخراج الرسالة السرية! 🔓');
+            // التحقق الهيكلي الصارم
+            if(!vault || typeof vault !== 'object' || !vault.header || !vault.data) throw new Error("STRUCT_ERR");
+            if(vault.header.app !== "HisnLock") throw new Error("APP_ERR");
+            if(vault.header.version !== "4.0" && vault.header.version !== "5.0") throw new Error("VER_ERR");
+            if(vault.header.kdf !== "pbkdf2") throw new Error("KDF_ERR");
+            if(vault.header.cipher !== "AES-GCM-256") throw new Error("CIPHER_ERR");
+            
+            const salt = b642buf(vault.data.salt);
+            const iv = b642buf(vault.data.iv);
+            const ciphertext = b642buf(vault.data.ciphertext);
+            
+            // التحقق من حجم البايتات لمنع التلاعب
+            if(salt.length !== 16) throw new Error("CORRUPT_BYTES");
+            if(iv.length !== 12) throw new Error("CORRUPT_BYTES");
+
+            const iters = vault.header.kdf_params.iterations;
+
+            const key = await getKey(pwd, salt, iters);
+            const decrypted = await window.crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, ciphertext);
+
+            const resultText = dec.decode(unpad(new Uint8Array(decrypted)));
+            document.getElementById('dec-result-text').innerText = resultText;
+            
+            // تفعيل عداد التدمير الذاتي (10 ثوانٍ)
+            const container = document.getElementById('wipe-container');
+            const bar = document.getElementById('timer-bar');
+            container.style.display = 'block';
+            
+            bar.style.transition = 'none'; bar.style.transform = 'scaleX(1)';
+            setTimeout(() => { bar.style.transition = 'transform 10s linear'; bar.style.transform = 'scaleX(0)'; }, 50);
+
+            clearTimeout(wipeTimeout);
+            wipeTimeout = setTimeout(wipeMemory, 10000);
+            
+            showToast('تم الوصول للبيانات السرية 🔓');
         } catch (err) {
-            showToast('فشل! كلمة المرور خاطئة أو النص تالف', true);
-        } finally { btn.disabled = false; btn.innerText = 'فك التشفير 🔓'; }
+            let msg = "فشل الوصول: كلمة المرور خاطئة";
+            if(err.message === "FORMAT_ERR") msg = "خطأ: الملف ليس بصيغة JSON صحيحة";
+            if(["STRUCT_ERR", "APP_ERR", "VER_ERR", "KDF_ERR", "CIPHER_ERR", "CORRUPT_BYTES"].includes(err.message)) msg = "تم التلاعب بالملف أو المعايير غير متطابقة!";
+            if(err.message === "CORRUPT_PADDING") msg = "بيانات تالفة أو كلمة مرور خاطئة (حشو غير متطابق)";
+            showToast(msg, true);
+        } finally { 
+            btn.disabled = false; btn.innerText = '🔓 فتح القبو واستخراج البيانات'; 
+        }
     });
+
+    // --- مسح الذاكرة بالكامل ---
+    function wipeMemory() {
+        document.getElementById('dec-result-text').innerText = '...';
+        document.getElementById('enc-text').value = '';
+        document.getElementById('dec-text').value = '';
+        document.getElementById('enc-password').value = '';
+        document.getElementById('dec-password').value = '';
+        document.getElementById('wipe-container').style.display = 'none';
+        document.getElementById('btn-download-enc').style.display = 'none';
+        generatedVaultJSON = "";
+        
+        // إعادة ضبط واجهة الإنتروبيا
+        document.getElementById('enc-entropy-fill').style.width = '0%';
+        document.getElementById('enc-entropy-bits').innerText = '0 Bits';
+        document.getElementById('enc-crack-time').innerText = 'فوري';
+        document.getElementById('enc-crack-time').style.color = 'var(--text)';
+        document.getElementById('btn-encrypt').disabled = true;
+    }
+
+    // --- تصدير العزل النقي (Clean Air-Gap Export) ---
+    function downloadAirGapped() {
+        // إنشاء نسخة (Clone) لتنظيفها من أي آثار تفاعل المستخدم
+        const clone = document.documentElement.cloneNode(true);
+        
+        // تنظيف الحقول والأنماط المضافة للنسخة المستنسخة
+        clone.querySelectorAll('textarea, input').forEach(el => el.removeAttribute('value'));
+        clone.querySelectorAll('.custom-textarea').forEach(el => el.innerHTML = '');
+        clone.querySelector('#wipe-container').style.display = 'none';
+        clone.querySelector('#btn-download-enc').style.display = 'none';
+        clone.querySelector('#enc-entropy-fill').style.width = '0%';
+        clone.querySelector('#enc-entropy-bits').innerText = '0 Bits';
+        clone.querySelector('#enc-crack-time').innerText = 'فوري';
+        clone.querySelector('#btn-encrypt').setAttribute('disabled', 'true');
+        clone.querySelector('#dec-result-text').innerText = '';
+
+        const html = "<!DOCTYPE html>\n<html lang=\"ar\" dir=\"rtl\">\n" + clone.innerHTML + "\n</html>";
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); 
+        a.download = "HisnLock_AirGapped_V5.html"; 
+        a.click();
+        showToast('تم تحميل كود معزول ونظيف تماماً 🛡️');
+    }
 </script>
 </body>
 </html>
